@@ -1,0 +1,85 @@
+---
+title: "Week 10 Assignment"
+author: "Tyler Baker"
+date: "3/31/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(matlib)
+```
+
+## Week 10 Assignment
+
+Smith is in jail and has 1 dollar; he can get out on bail if he has 8 dollars.
+A guard agrees to make a series of bets with him. If Smith bets A dollars,
+he wins A dollars with probability .4 and loses A dollars with probability .6.
+Find the probability that he wins 8 dollars before losing all of his money if
+(a) he bets 1 dollar each time (timid strategy).
+(b) he bets, each time, as much as possible but not more than necessary to
+bring his fortune up to 8 dollars (bold strategy).
+(c) Which strategy gives Smith the better chance of getting out of jail?
+
+
+Part a)
+
+B = NR. Where N is the fundemental matrix and R is the canonical form.
+step 1: Create a matrix
+```{r}
+a <- matrix(c(0,0.4,0,0,0,0,0,0.6,0,
+              0.6,0,0.4,0,0,0,0,0,0,
+              0,0.6,0,0.4,0,0,0,0,0,
+              0,0,0.6,0,0.4,0,0,0,0,
+              0,0,0,0.6,0,0.4,0,0,0,
+              0,0,0,0,0.6,0,0.4,0,0,
+              0,0,0,0,0,0.6,0,0,0.4,
+              0,0,0,0,0,0,0,1,0,
+              0,0,0,0,0,0,0,0,1), nrow=9,ncol=9,byrow=TRUE)
+
+q<- a[c(TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,FALSE),c(TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,FALSE)]
+
+r<- a[c(TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,TRUE,FALSE,FALSE),c(FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,FALSE,TRUE,TRUE)]
+
+ident <- diag(7)
+
+n <- inv(ident - q)
+
+b<- n%*%r
+
+sol<- b[1,2]
+print(sol)
+```
+There you have it. Smith has a 2% chance of escaping jail this way.
+
+part b)
+
+Since Smith is attempting to double his money each time he cannot hit every integer before 8. Starting at 1, he can go to 0, or 2. From 2 he either can go to 4 or 0. Finally from 4 he can go to 8 or to 0.
+
+We will use the same strategy but with a smaller matrix.
+
+```{r}
+a <- matrix(c(0, 0.4, 0, 0.6, 0,
+              0, 0, 0.4, 0.6, 0,
+              0, 0, 0, 0.6, 0.4,
+              0, 0, 0, 1, 0,
+              0, 0, 0, 0, 1), nrow= 5, ncol=5, byrow=TRUE)
+
+q<-a[c(TRUE,TRUE,TRUE,FALSE,FALSE), c(TRUE, TRUE, TRUE, FALSE, FALSE)]
+
+r <- a[c(TRUE,TRUE,TRUE,FALSE,FALSE),c(FALSE,FALSE,FALSE,TRUE,TRUE)]
+
+ident <- diag(3)
+
+n<- inv(ident - q)
+
+b<- n%*%r
+
+sol<- b[1,2]
+print(sol)
+```
+Using the bold strategy Smith has a 6.4% chance of escaping jail.
+
+part c)
+
+History favors the bold. Smith has a better chance of getting freedom if he bets as bold as possible every time.
